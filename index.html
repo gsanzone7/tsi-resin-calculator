@@ -190,6 +190,102 @@ input[type="number"]::placeholder { color: #252525; }
   line-height: 1.5;
 }
 
+/* ── Install button ── */
+.install-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 10px;
+  transition: color 0.15s;
+}
+.install-btn:hover { color: var(--text-2); }
+.install-btn svg { flex-shrink: 0; }
+
+/* ── Install modal ── */
+.install-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 16px calc(env(safe-area-inset-bottom, 0px) + 24px);
+}
+.install-overlay.open { display: flex; }
+.install-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  width: 100%;
+  max-width: 500px;
+  padding: 24px 20px 20px;
+}
+.install-card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 16px;
+}
+.install-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.install-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text);
+}
+.install-steps li .step-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text-3);
+  min-width: 18px;
+}
+.install-steps li .step-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+.install-dismiss {
+  width: 100%;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+.install-dismiss:hover { border-color: var(--text-3); color: var(--text); }
+
 /* ── Result divider ── */
 .result-divider {
   width: 100%;
@@ -325,6 +421,13 @@ input[type="number"]::placeholder { color: #252525; }
     </div>
     <div class="page-rule"></div>
     <div class="page-label">Liner Resin Calculator</div>
+    <button class="install-btn" id="installBtn" onclick="openInstall()" aria-label="Add to home screen">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M1 9v1.5A.5.5 0 001.5 11h9a.5.5 0 00.5-.5V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Add to home screen
+    </button>
   </header>
 
   <div class="form-panel">
@@ -515,6 +618,52 @@ function calc() {
   });
 }
 
+</script>
+
+<!-- Install modal -->
+<div class="install-overlay" id="installOverlay" onclick="closeInstallIfOutside(event)">
+  <div class="install-card">
+    <div class="install-card-title">Add to Home Screen</div>
+    <ol class="install-steps">
+      <li>
+        <span class="step-num">1</span>
+        <span>Tap the <strong>Share</strong> button
+          <span class="step-icon">
+            <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 1v11M4 4l4-3 4 3" stroke="#D3000F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 8H1.5A.5.5 0 001 8.5v8a.5.5 0 00.5.5h13a.5.5 0 00.5-.5v-8a.5.5 0 00-.5-.5H13" stroke="#D3000F" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          at the bottom of Safari
+        </span>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <span>Scroll down and tap <strong>Add to Home Screen</strong></span>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <span>Tap <strong>Add</strong> in the top-right corner</span>
+      </li>
+    </ol>
+    <button class="install-dismiss" onclick="closeInstall()">Got it</button>
+  </div>
+</div>
+
+<script>
+  // Hide install button if already running as PWA
+  if (window.navigator.standalone === true) {
+    document.getElementById('installBtn').style.display = 'none';
+  }
+  function openInstall() {
+    document.getElementById('installOverlay').classList.add('open');
+  }
+  function closeInstall() {
+    document.getElementById('installOverlay').classList.remove('open');
+  }
+  function closeInstallIfOutside(e) {
+    if (e.target === document.getElementById('installOverlay')) closeInstall();
+  }
 </script>
 
 </body>
